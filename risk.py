@@ -37,11 +37,16 @@ class Soldat(pygame.sprite.Sprite):
         self.max_health = 100
         self.attack = 10
         if equipe == 1:
-            self.image = pygame.image.load('soldier.jpg')
+            self.image = pygame.image.load('soldat.png')
         if equipe == 2:
-            self.image = pygame.image.load('soldatEnemi.png')
+            self.image = pygame.image.load('soldat2.png')
         self.rect = self.image.get_rect()
         self.equipe = equipe
+
+    def display_health(self, sizeBtwnX, sizeBtwY, surface):
+        for i in range(int(self.health/5)):
+            pygame.draw.line(surface, (255,0,0), (int((self.rect.x+0.85)*sizeBtwnX),int((self.rect.y+0.75)*sizeBtwnY-i)),(int((self.rect.x+0.95)*sizeBtwnX),int((self.rect.y+0.75)*sizeBtwnY-i)))
+
 
     def move_right(self):
         if self.rect.x != rows-1:
@@ -92,7 +97,11 @@ def redrawWindow(surface):
     surface.blit(background, (0,0))
     drawGrid(width, height, lines, rows, surface)
     for i in range(len(soldats)):
-        surface.blit(soldats[i].image, (soldats[i].rect.x*sizeBtwnX, soldats[i].rect.y*sizeBtwnY, sizeBtwnX, sizeBtwnY))
+        if soldats[i].equipe == 1:
+            surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y+0.1)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
+        else:
+            surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
+        soldats[i].display_health(sizeBtwnX, sizeBtwnY, surface)
     pygame.draw.ellipse(surface, (255,0,0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
     numSoldat = isSomeone((joueur.x, joueur.y))
     if joueur.enterMode is True:
@@ -141,8 +150,8 @@ def redrawWindow(surface):
     txt2 = "nombre de coups restant : " + str(joueur.nbCoups)
     text = font.render(txt, True, (0, 0, 0))
     text2 = font.render(txt2, True,(0, 0, 0))
-    surface.blit(text, (900, 550))
-    surface.blit(text2, (900, 600))
+    surface.blit(text, (700, 550))
+    surface.blit(text2, (700, 600))
     pygame.display.update()
 
 
@@ -166,7 +175,7 @@ def main():
     height = 660
     soldats = []
     rows = 40
-    lines = 20
+    lines = 15
     sizeBtwnX = width // rows
     possibilities = []
     for i in range(4):
@@ -182,14 +191,14 @@ def main():
         soldats.append(Soldat(1))
         soldats[i].rect.y = i
         soldats[i].rect.x = i
-        soldats[i].image = pygame.transform.scale(soldats[i].image, (int(width/rows), int(height/lines)))
+        soldats[i].image = pygame.transform.scale(soldats[i].image, (int(width/rows/1.35), int(height/lines/1.25)))
 
 
     for i in range(lines):
         soldats.append(Soldat(2))
         soldats[len(soldats)-1].rect.x = rows-2
         soldats[len(soldats)-1].rect.y = i
-        soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows), int(height/lines)))
+        soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
     clock = pygame.time.Clock()
     joueur = joueur1
     while running:
