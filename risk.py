@@ -38,7 +38,9 @@ class Soldat(pygame.sprite.Sprite):
         self.cost = 200
         self.health = 100
         self.max_health = 100
-        self.attack = 10
+        self.attack = 20
+        self.criticalAttack = 35
+        self.criticalProb = 20
         if equipe == 1:
             self.image = pygame.image.load('soldat.png')
         if equipe == 2:
@@ -69,8 +71,13 @@ class Soldat(pygame.sprite.Sprite):
 
     def attaque(self, soldat):
         if soldat is not None:
+
             soldat.health -= self.attack
             self.health -= soldat.attack
+            if random.randrange(100) <= self.criticalProb:
+                soldat.health -= self.criticalAttack
+            if random.randrange(100) <= soldat.criticalProb:
+                self.health -= soldat.criticalAttack
             return soldat
 
 
@@ -111,9 +118,6 @@ def attack(indexEnemi):
         print("pas assez de coups pour attaquer")
 
 
-
-
-
 def drawGrid(w, h, lines, rows, surface):
     x = 0
     y = 0
@@ -123,6 +127,7 @@ def drawGrid(w, h, lines, rows, surface):
     for L in range(lines):
         y = y + sizeBtwnY
         pygame.draw.line(surface, (0,0,0), (0,y), (w,y))
+
 
 def redrawWindow(surface):
     global rows, width, s, snack
