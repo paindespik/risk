@@ -1,4 +1,3 @@
-import math
 import random
 import pygame
 
@@ -50,8 +49,7 @@ class Soldat(pygame.sprite.Sprite):
 
     def display_health(self, sizeBtwnX, sizeBtwY, surface):
         for i in range(int(self.health/5)):
-            pygame.draw.line(surface, (255,0,0), (int((self.rect.x+0.85)*sizeBtwnX),int((self.rect.y+0.75)*sizeBtwnY-i)),(int((self.rect.x+0.95)*sizeBtwnX),int((self.rect.y+0.75)*sizeBtwnY-i)))
-
+            pygame.draw.line(surface, (255, 0, 0), (int((self.rect.x+0.85)*sizeBtwnX), int((self.rect.y+0.75)*sizeBtwnY-i)), (int((self.rect.x+0.95)*sizeBtwnX), int((self.rect.y+0.75)*sizeBtwnY-i)))
 
     def move_right(self):
         if self.rect.x != rows-1:
@@ -123,16 +121,16 @@ def drawGrid(w, h, lines, rows, surface):
     y = 0
     for l in range(rows):
         x = x + sizeBtwnX
-        pygame.draw.line(surface, (0,0,0), (x,0),(x,h))
+        pygame.draw.line(surface, (0, 0, 0), (x, 0), (x, h))
     for L in range(lines):
         y = y + sizeBtwnY
-        pygame.draw.line(surface, (0,0,0), (0,y), (w,y))
+        pygame.draw.line(surface, (0, 0, 0), (0, y), (w, y))
 
 
 def redrawWindow(surface):
     global rows, width, s, snack
-    surface.fill((0,0,0))
-    blit_alpha(surface, background, (0,0), 128)
+    surface.fill((0, 0, 0))
+    blit_alpha(surface, background, (0, 0), 128)
     drawGrid(width, height, lines, rows, surface)
     for i in range(len(soldats)):
         if soldats[i].equipe == 1:
@@ -141,73 +139,73 @@ def redrawWindow(surface):
             surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
         soldats[i].display_health(sizeBtwnX, sizeBtwnY, surface)
     if joueur.insertMode is True:
-        pygame.draw.ellipse(surface, (0,255,0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+        pygame.draw.ellipse(surface, (0, 255, 0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
     else:
-        pygame.draw.ellipse(surface, (255,0,0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+        pygame.draw.ellipse(surface, (255, 0, 0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
         numSoldat = isSomeone((joueur.x, joueur.y))
     if joueur.enterMode is True:
         if isSomeone((joueur.x+1, joueur.y)) == "rien":
             possibilities[0] = numSoldat
-            pygame.draw.ellipse(surface, (0,255,0), ((joueur.x+1)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
-        elif isSomeone((joueur.x+1, joueur.y))=="mur":
+            pygame.draw.ellipse(surface, (0, 255, 0), ((joueur.x+1)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+        elif isSomeone((joueur.x+1, joueur.y)) == "mur":
             possibilities[0] = "mur"
         else:
-            if isSomeone((joueur.x+1, joueur.y))<0:
+            if isSomeone((joueur.x+1, joueur.y)) < 0:
                 possibilities[0] = isSomeone((joueur.x+1, joueur.y))
             else:
                 possibilities[0] = "allié"
         if isSomeone((joueur.x, joueur.y+1)) == "rien":
             possibilities[1] = numSoldat
-            pygame.draw.ellipse(surface, (0,255,0), ((joueur.x)*sizeBtwnX, (joueur.y+1)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            pygame.draw.ellipse(surface, (0, 255, 0), ((joueur.x)*sizeBtwnX, (joueur.y+1)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
         elif isSomeone((joueur.x, joueur.y+1)) == "mur":
             possibilities[1] = "mur"
         else:
-            if isSomeone((joueur.x, joueur.y+1))<0:
+            if isSomeone((joueur.x, joueur.y+1)) < 0:
                 possibilities[1] = isSomeone((joueur.x, joueur.y+1))
             else:
                 possibilities[1] = "allié"
         if isSomeone((joueur.x-1, joueur.y)) == "rien":
             possibilities[2] = numSoldat
-            pygame.draw.ellipse(surface, (0,255,0), ((joueur.x-1)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            pygame.draw.ellipse(surface, (0, 255, 0), ((joueur.x-1)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
         elif isSomeone((joueur.x-1, joueur.y)) == "mur":
             possibilities[2] = "mur"
         else:
-            if isSomeone((joueur.x-1, joueur.y))<0:
+            if isSomeone((joueur.x-1, joueur.y)) < 0:
                 possibilities[2] = isSomeone((joueur.x-1, joueur.y))
             else:
                 possibilities[2] = "allié"
-        if isSomeone((joueur.x, joueur.y-1)) =="rien":
+        if isSomeone((joueur.x, joueur.y-1)) == "rien":
             possibilities[3] = numSoldat
-            pygame.draw.ellipse(surface, (0,255,0), ((joueur.x)*sizeBtwnX, (joueur.y-1)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
-        elif isSomeone((joueur.x, joueur.y-1))=="mur":
+            pygame.draw.ellipse(surface, (0, 255, 0), ((joueur.x)*sizeBtwnX, (joueur.y-1)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+        elif isSomeone((joueur.x, joueur.y-1)) == "mur":
             possibilities[3] = "mur"
         else:
-            if isSomeone((joueur.x, joueur.y-1))<0:
+            if isSomeone((joueur.x, joueur.y-1)) < 0:
                 possibilities[3] = isSomeone((joueur.x, joueur.y-1))
             else:
                 possibilities[3] = "allié"
     font = pygame.font.SysFont("comicsansms", 30)
     txt = "Equipe : " + str(joueur.equipe)
     txt2 = "nombre de coups restant : " + str(joueur.nbCoups)
-    if joueur.insertMode == True:
+    if joueur.insertMode is True:
         txt2 = "Placez vos soldats : " + str(joueur.money) + "$"
     text = font.render(txt, True, (0, 0, 0))
-    text2 = font.render(txt2, True,(0, 0, 0))
+    text2 = font.render(txt2, True, (0, 0, 0))
     surface.blit(text, (700, 550))
     surface.blit(text2, (700, 600))
     pygame.display.update()
 
 
 def isSomeone(pos):
-    i=0
-    if pos[0]<0 or pos[0]>=rows or pos[1]<0 or pos[1]>=lines:
+    i = 0
+    if pos[0] < 0 or pos[0] >= rows or pos[1] < 0 or pos[1] >= lines:
         return "mur"
     for soldat in soldats:
         if soldat.rect.x == pos[0] and soldat.rect.y == pos[1]:
             if soldat.equipe != joueur.equipe:
                 return -i-1
             return i
-        i=i+1
+        i = i+1
     return "rien"
 
 
@@ -270,7 +268,7 @@ def main():
         if joueur.nbCoups <= 0:
             joueur.enterMode = False
             joueur = changeTeam(joueur, joueur1, joueur2)
-            win.blit(pygame.image.load('changeTeam.png'), (0,0))
+            win.blit(pygame.image.load('changeTeam.png'), (0, 0))
             pygame.display.update()
             pygame.time.wait(2000)
         if joueur.enterMode is True:
