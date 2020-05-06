@@ -79,6 +79,25 @@ class Soldat(pygame.sprite.Sprite):
             return soldat
 
 
+def hasWon():
+    A = 0
+    E = 0
+    if len(soldats) == 0 or joueur.insertMode is True:
+        return 0
+    for soldat in soldats:
+        if soldat.equipe == 1:
+            A = 1
+        else:
+            E = 1
+    if A != 0 and E != 0:
+        return 0
+    if A == 0 and E == 0:
+        return 3
+    elif A != 0:
+        return 1
+    return 2
+
+
 def changeTeam(joueur, joueur1, joueur2):
     joueur.nbCoups = joueur.coupsMax
     if joueur.equipe == joueur1.equipe:
@@ -240,165 +259,171 @@ def main():
     joueur2.x = rows-1
     joueur2.y = 0
     pressed = {}
-    """
-    for i in range(lines):
-        soldats.append(Soldat(1))
-        soldats[i].rect.y = i
-        soldats[i].rect.x = i
-        soldats[i].image = pygame.transform.scale(soldats[i].image, (int(width/rows/1.35), int(height/lines/1.25)))
-
-
-    for i in range(lines):
-        soldats.append(Soldat(2))
-        soldats[len(soldats)-1].rect.x = rows-2
-        soldats[len(soldats)-1].rect.y = i
-        soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
-"""
     clock = pygame.time.Clock()
     joueur = joueur1
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-            elif event.type == pygame.KEYDOWN:
-                pressed[event.key] = True
-            elif event.type == pygame.KEYUP:
-                pressed[event.key] = False
-        if joueur.nbCoups <= 0:
-            joueur.enterMode = False
-            joueur = changeTeam(joueur, joueur1, joueur2)
+        gagnant = hasWon()
+        switcher = {
+            0: "pas de gagnant",
+            1: "équipe 1",
+            2: "équipe 2",
+            3: "execo",
+        }
+        if switcher.get(gagnant) == "équipe 1":
             win.blit(pygame.image.load('changeTeam.png'), (0, 0))
             pygame.display.update()
             pygame.time.wait(2000)
-        if joueur.enterMode is True:
-            if pressed.get(pygame.K_RIGHT):
-                if possibilities[0] == "mur":
-                    print('mur')
-                elif possibilities[0] == "allié":
-                    print("salut ami!")
-                elif possibilities[0] >= 0:
-                    soldats[possibilities[0]].move_right()
-                    joueur.move_right()
-                    joueur.nbCoups = joueur.nbCoups - 1
-                elif possibilities[0] < 0:
-                    attack(-possibilities[0]-1)
-
-            elif pressed.get(pygame.K_DOWN):
-                if possibilities[1] == "mur":
-                    print('mur')
-                elif possibilities[1] == "allié":
-                    print("salut ami!")
-                elif possibilities[1] >= 0:
-                    soldats[possibilities[1]].move_down()
-                    joueur.move_down()
-                    joueur.nbCoups = joueur.nbCoups - 1
-                elif possibilities[1] < 0:
-                    attack(-possibilities[1]-1)
-
-            elif pressed.get(pygame.K_LEFT):
-                if possibilities[2] == "mur":
-                    print('mur')
-                elif possibilities[2] == "allié":
-                    print("salut ami!")
-                elif possibilities[2] >= 0:
-                    soldats[possibilities[2]].move_left()
-                    joueur.move_left()
-                    joueur.nbCoups = joueur.nbCoups - 1
-                elif possibilities[2] < 0:
-                    attack(-possibilities[2]-1)
-
-            elif pressed.get(pygame.K_UP):
-                if possibilities[3] == "mur":
-                    print('mur')
-                elif possibilities[3] == "allié":
-                    print("salut ami!")
-                elif possibilities[3] >= 0:
-                    soldats[possibilities[3]].move_up()
-                    joueur.move_up()
-                    joueur.nbCoups = joueur.nbCoups - 1
-                elif possibilities[3] < 0:
-                    attack(-possibilities[3]-1)
-
-            elif pressed.get(pygame.K_RETURN):
+        elif switcher.get(gagnant) == "équipe 2":
+            win.blit(pygame.image.load('changeTeam.png'), (0, 0))
+            pygame.display.update()
+            pygame.time.wait(2000)
+        elif switcher.get(gagnant) == "execo":
+            win.blit(pygame.image.load('changeTeam.png'), (0, 0))
+            pygame.display.update()
+            pygame.time.wait(2000)
+        elif switcher.get(gagnant) == "pas de gagnant":
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+                elif event.type == pygame.KEYDOWN:
+                    pressed[event.key] = True
+                elif event.type == pygame.KEYUP:
+                    pressed[event.key] = False
+            if joueur.nbCoups <= 0:
                 joueur.enterMode = False
-                redrawWindow(win)
-                pygame.time.wait(200)
+                joueur = changeTeam(joueur, joueur1, joueur2)
+                win.blit(pygame.image.load('changeTeam.png'), (0, 0))
+                pygame.display.update()
+                pygame.time.wait(2000)
+            if joueur.enterMode is True:
+                if pressed.get(pygame.K_RIGHT):
+                    if possibilities[0] == "mur":
+                        print('mur')
+                    elif possibilities[0] == "allié":
+                        print("salut ami!")
+                    elif possibilities[0] >= 0:
+                        soldats[possibilities[0]].move_right()
+                        joueur.move_right()
+                        joueur.nbCoups = joueur.nbCoups - 1
+                    elif possibilities[0] < 0:
+                        attack(-possibilities[0]-1)
 
-        else:
-            if pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_UP):
-                if joueur.x != rows-1 and joueur.y != 0:
-                    joueur.move_up()
-                    joueur.move_right()
-                elif joueur.x != rows-1:
-                    joueur.move_right()
-                elif joueur.y != 0:
-                    joueur.move_up()
-            elif pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_DOWN):
-                if joueur.x != rows-1 and joueur.y != lines-1:
-                    joueur.move_down()
-                    joueur.move_right()
-                elif joueur.x != rows-1:
-                    joueur.move_right()
-                elif joueur.y != lines-1:
-                    joueur.move_down()
-            elif pressed.get(pygame.K_LEFT) and pressed.get(pygame.K_DOWN):
-                if joueur.x != 0 and joueur.y != lines-1:
-                    joueur.move_down()
-                    joueur.move_left()
-                elif joueur.x != 0:
-                    joueur.move_left()
-                elif joueur.y != lines-1:
-                    joueur.move_down()
-            elif pressed.get(pygame.K_LEFT) and pressed.get(pygame.K_UP):
-                if joueur.x != 0 and joueur.y != 0:
-                    joueur.move_up()
-                    joueur.move_left()
-                elif joueur.x != 0:
-                    joueur.move_left()
-                elif joueur.y != 0:
-                    joueur.move_up()
-            elif pressed.get(pygame.K_RIGHT):
-                if joueur.x != rows-1:
-                    joueur.move_right()
-            elif pressed.get(pygame.K_LEFT):
-                if joueur.x != 0:
-                    joueur.move_left()
-            elif pressed.get(pygame.K_UP):
-                if joueur.y != 0:
-                    joueur.move_up()
-            elif pressed.get(pygame.K_DOWN):
-                if joueur.y != lines-1:
-                    joueur.move_down()
-            elif pressed.get(pygame.K_RETURN):
-                if joueur.insertMode is True:
-                    if isSomeone((joueur.x, joueur.y)) == "rien":
-                        soldats.append(Soldat(joueur.equipe))
-                        soldats[len(soldats)-1].rect.x = joueur.x
-                        soldats[len(soldats)-1].rect.y = joueur.y
-                        if joueur.equipe == 1:
-                            soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
-                        else:
-                            soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
-                        joueur.money -= soldats[len(soldats)-1].cost
-                        joueur = changeTeam(joueur, joueur1, joueur2)
-                        pygame.time.wait(200)
-                    else:
-                        print("Vous devez placer vos soldats sur des cases vides")
+                elif pressed.get(pygame.K_DOWN):
+                    if possibilities[1] == "mur":
+                        print('mur')
+                    elif possibilities[1] == "allié":
+                        print("salut ami!")
+                    elif possibilities[1] >= 0:
+                        soldats[possibilities[1]].move_down()
+                        joueur.move_down()
+                        joueur.nbCoups = joueur.nbCoups - 1
+                    elif possibilities[1] < 0:
+                        attack(-possibilities[1]-1)
 
-                else:
-                    Someone = isSomeone((joueur.x, joueur.y))
-                    if type(Someone) == int:
-                        if Someone >= 0:
-                            joueur.enterMode = True
+                elif pressed.get(pygame.K_LEFT):
+                    if possibilities[2] == "mur":
+                        print('mur')
+                    elif possibilities[2] == "allié":
+                        print("salut ami!")
+                    elif possibilities[2] >= 0:
+                        soldats[possibilities[2]].move_left()
+                        joueur.move_left()
+                        joueur.nbCoups = joueur.nbCoups - 1
+                    elif possibilities[2] < 0:
+                        attack(-possibilities[2]-1)
+
+                elif pressed.get(pygame.K_UP):
+                    if possibilities[3] == "mur":
+                        print('mur')
+                    elif possibilities[3] == "allié":
+                        print("salut ami!")
+                    elif possibilities[3] >= 0:
+                        soldats[possibilities[3]].move_up()
+                        joueur.move_up()
+                        joueur.nbCoups = joueur.nbCoups - 1
+                    elif possibilities[3] < 0:
+                        attack(-possibilities[3]-1)
+
+                elif pressed.get(pygame.K_RETURN):
+                    joueur.enterMode = False
+                    redrawWindow(win)
+                    pygame.time.wait(200)
+
+            else:
+                if pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_UP):
+                    if joueur.x != rows-1 and joueur.y != 0:
+                        joueur.move_up()
+                        joueur.move_right()
+                    elif joueur.x != rows-1:
+                        joueur.move_right()
+                    elif joueur.y != 0:
+                        joueur.move_up()
+                elif pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_DOWN):
+                    if joueur.x != rows-1 and joueur.y != lines-1:
+                        joueur.move_down()
+                        joueur.move_right()
+                    elif joueur.x != rows-1:
+                        joueur.move_right()
+                    elif joueur.y != lines-1:
+                        joueur.move_down()
+                elif pressed.get(pygame.K_LEFT) and pressed.get(pygame.K_DOWN):
+                    if joueur.x != 0 and joueur.y != lines-1:
+                        joueur.move_down()
+                        joueur.move_left()
+                    elif joueur.x != 0:
+                        joueur.move_left()
+                    elif joueur.y != lines-1:
+                        joueur.move_down()
+                elif pressed.get(pygame.K_LEFT) and pressed.get(pygame.K_UP):
+                    if joueur.x != 0 and joueur.y != 0:
+                        joueur.move_up()
+                        joueur.move_left()
+                    elif joueur.x != 0:
+                        joueur.move_left()
+                    elif joueur.y != 0:
+                        joueur.move_up()
+                elif pressed.get(pygame.K_RIGHT):
+                    if joueur.x != rows-1:
+                        joueur.move_right()
+                elif pressed.get(pygame.K_LEFT):
+                    if joueur.x != 0:
+                        joueur.move_left()
+                elif pressed.get(pygame.K_UP):
+                    if joueur.y != 0:
+                        joueur.move_up()
+                elif pressed.get(pygame.K_DOWN):
+                    if joueur.y != lines-1:
+                        joueur.move_down()
+                elif pressed.get(pygame.K_RETURN):
+                    if joueur.insertMode is True:
+                        if isSomeone((joueur.x, joueur.y)) == "rien":
+                            soldats.append(Soldat(joueur.equipe))
+                            soldats[len(soldats)-1].rect.x = joueur.x
+                            soldats[len(soldats)-1].rect.y = joueur.y
+                            if joueur.equipe == 1:
+                                soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
+                            else:
+                                soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
+                            joueur.money -= soldats[len(soldats)-1].cost
+                            joueur = changeTeam(joueur, joueur1, joueur2)
                             pygame.time.wait(200)
+                        else:
+                            print("Vous devez placer vos soldats sur des cases vides")
 
-        clock.tick(10)
-        redrawWindow(win)
-        if joueur.insertMode is True:
-            if joueur.money < 200:
-                joueur.insertMode = False
-                changeTeam(joueur, joueur1, joueur2)
+                    else:
+                        Someone = isSomeone((joueur.x, joueur.y))
+                        if type(Someone) == int:
+                            if Someone >= 0:
+                                joueur.enterMode = True
+                                pygame.time.wait(200)
+
+            clock.tick(10)
+            redrawWindow(win)
+            if joueur.insertMode is True:
+                if joueur.money < 200:
+                    joueur.insertMode = False
+                    changeTeam(joueur, joueur1, joueur2)
 
     pass
 
