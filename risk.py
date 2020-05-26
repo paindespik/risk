@@ -4,6 +4,7 @@ import pygame
 
 class Joueur():
     def __init__(self, equipe):
+        self.typeSoldat = "soldat"
         self.insertMode = True
         self.money = 1000
         self.x = 0
@@ -79,6 +80,33 @@ class Soldat(pygame.sprite.Sprite):
             return soldat
 
 
+class Canon(Soldat):
+
+    def __init__(self, equipe, range):
+        super().__init__
+        self.cost = 700
+        self.health = 100
+        self.max_health = 100
+        self.attack = 80
+        self.range = range
+        self.criticalAttack = 20
+        self.criticalProb = 20
+        if equipe == 1:
+            self.image = pygame.image.load('soldat.png')
+        if equipe == 2:
+            self.image = pygame.image.load('soldat2.png')
+        self.rect = self.image.get_rect()
+        self.equipe = equipe
+
+    def attaque(self, soldat):
+        if soldat is not None:
+
+            soldat.health -= self.attack
+            if random.randrange(100) <= self.criticalProb:
+                soldat.health -= self.criticalAttack
+            return soldat
+
+
 def hasWon():
     A = 0
     E = 0
@@ -109,7 +137,7 @@ def changeTeam(joueur, joueur1, joueur2):
     return joueur
 
 
-def attack(indexEnemi):
+def attack(indexEnemi, isCanon):
     if joueur.nbCoups >= 3:
         print(indexEnemi)
         indexAmi = isSomeone((joueur.x, joueur.y))
@@ -126,10 +154,13 @@ def attack(indexEnemi):
                 joueur.enterMode = False
                 del soldats[indexAmi]
             elif soldats[indexEnemi].health <= 0:
-                soldats[indexAmi].rect = soldats[indexEnemi].rect
-                joueur.x = soldats[indexEnemi].rect.x
-                joueur.y = soldats[indexEnemi].rect.y
+                if isCanon == False:
+                    soldats[indexAmi].rect = soldats[indexEnemi].rect
+                    joueur.x = soldats[indexEnemi].rect.x
+                    joueur.y = soldats[indexEnemi].rect.y
                 del soldats[indexEnemi]
+        if is Canon == True:
+            joueur.nbCoups -= 3
         joueur.nbCoups -= 3
     else:
         print("pas assez de coups pour attaquer")
@@ -163,6 +194,48 @@ def redrawWindow(surface):
         pygame.draw.ellipse(surface, (255, 0, 0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
         numSoldat = isSomeone((joueur.x, joueur.y))
     if joueur.enterMode is True:
+        if soldats[numSoldat].cost == 700:
+            if isSomeone((joueur.x+3, joueur.y)) == "rien":
+                possibilities[4] = numSoldat
+                pygame.draw.ellipse(surface, (255, 0, 0), ((joueur.x+3)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            elif isSomeone((joueur.x+3, joueur.y)) == "mur":
+                possibilities[4] = "mur"
+            else:
+                if isSomeone((joueur.x+3, joueur.y)) < 0:
+                    possibilities[4] = isSomeone((joueur.x+3, joueur.y))
+                else:
+                    possibilities[4] = "allié"
+            if isSomeone((joueur.x, joueur.y+3)) == "rien":
+                possibilities[5] = numSoldat
+                pygame.draw.ellipse(surface, (255, 0, 0), ((joueur.x)*sizeBtwnX, (joueur.y+3)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            elif isSomeone((joueur.x, joueur.y+3)) == "mur":
+                possibilities[5] = "mur"
+            else:
+                if isSomeone((joueur.x, joueur.y+3)) < 0:
+                    possibilities[5] = isSomeone((joueur.x, joueur.y+3))
+                else:
+                    possibilities[5] = "allié"
+            if isSomeone((joueur.x-3, joueur.y)) == "rien":
+                possibilities[6] = numSoldat
+                pygame.draw.ellipse(surface, (255, 0, 0), ((joueur.x-3)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            elif isSomeone((joueur.x-3, joueur.y)) == "mur":
+                possibilities[6] = "mur"
+            else:
+                if isSomeone((joueur.x-3, joueur.y)) < 0:
+                    possibilities[6] = isSomeone((joueur.x-3, joueur.y))
+                else:
+                    possibilities[6] = "allié"
+            if isSomeone((joueur.x, joueur.y-3)) == "rien":
+                possibilities[7] = numSoldat
+                pygame.draw.ellipse(surface, (255, 0, 0), ((joueur.x)*sizeBtwnX, (joueur.y-3)*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
+            elif isSomeone((joueur.x, joueur.y-3)) == "mur":
+                possibilities[7] = "mur"
+            else:
+                if isSomeone((joueur.x, joueur.y-3)) < 0:
+                    possibilities[7] = isSomeone((joueur.x, joueur.y-3))
+                else:
+                    possibilities[7] = "allié"
+
         if isSomeone((joueur.x+1, joueur.y)) == "rien":
             possibilities[0] = numSoldat
             pygame.draw.ellipse(surface, (0, 255, 0), ((joueur.x+1)*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
@@ -210,8 +283,15 @@ def redrawWindow(surface):
         txt2 = "Placez vos soldats : " + str(joueur.money) + "$"
     text = font.render(txt, True, (0, 0, 0))
     text2 = font.render(txt2, True, (0, 0, 0))
-    surface.blit(text, (700, 550))
-    surface.blit(text2, (700, 600))
+    if joueur.typeSoldat == "soldat":
+        txt3 = "soldat: 200$"
+    else:
+        txt3 = "canon: 700$"
+    text3 = font.render(txt3, True, (0, 0, 0))
+    surface.blit(text, (700, 500))
+    surface.blit(text2, (700, 550))
+    if joueur.insertMode is True:
+        surface.blit(text3, (700, 600))
     pygame.display.update()
 
 
@@ -248,7 +328,7 @@ def main():
     lines = 15
     sizeBtwnX = width // rows
     possibilities = []
-    for i in range(4):
+    for i in range(8):
         possibilities.append(False)
     sizeBtwnY = height // lines
     win = pygame.display.set_mode((width, height))
@@ -298,7 +378,9 @@ def main():
                 pygame.time.wait(2000)
             if joueur.enterMode is True:
                 if pressed.get(pygame.K_RIGHT):
-                    if possibilities[0] == "mur":
+                    if possibilities[4] is not False and possibilities[4] < 0:
+                        attack(-possibilities[4]-1, True)
+                    elif possibilities[0] == "mur":
                         print('mur')
                     elif possibilities[0] == "allié":
                         print("salut ami!")
@@ -307,10 +389,12 @@ def main():
                         joueur.move_right()
                         joueur.nbCoups = joueur.nbCoups - 1
                     elif possibilities[0] < 0:
-                        attack(-possibilities[0]-1)
+                            attack(-possibilities[0]-1, False)
 
                 elif pressed.get(pygame.K_DOWN):
-                    if possibilities[1] == "mur":
+                    if possibilities[5] is not False and possibilities[5] < 0:
+                        attack(-possibilities[5]-1, True)
+                    elif possibilities[1] == "mur":
                         print('mur')
                     elif possibilities[1] == "allié":
                         print("salut ami!")
@@ -319,10 +403,12 @@ def main():
                         joueur.move_down()
                         joueur.nbCoups = joueur.nbCoups - 1
                     elif possibilities[1] < 0:
-                        attack(-possibilities[1]-1)
+                        attack(-possibilities[1]-1, False)
 
                 elif pressed.get(pygame.K_LEFT):
-                    if possibilities[2] == "mur":
+                    if possibilities[6] is not False and possibilities[6] < 0:
+                        attack(-possibilities[6]-1, True)
+                    elif possibilities[2] == "mur":
                         print('mur')
                     elif possibilities[2] == "allié":
                         print("salut ami!")
@@ -331,10 +417,12 @@ def main():
                         joueur.move_left()
                         joueur.nbCoups = joueur.nbCoups - 1
                     elif possibilities[2] < 0:
-                        attack(-possibilities[2]-1)
+                        attack(-possibilities[2]-1, False)
 
                 elif pressed.get(pygame.K_UP):
-                    if possibilities[3] == "mur":
+                    if possibilities[7] is not False and possibilities[7] < 0:
+                        attack(-possibilities[7]-1, True)
+                    elif possibilities[3] == "mur":
                         print('mur')
                     elif possibilities[3] == "allié":
                         print("salut ami!")
@@ -343,7 +431,7 @@ def main():
                         joueur.move_up()
                         joueur.nbCoups = joueur.nbCoups - 1
                     elif possibilities[3] < 0:
-                        attack(-possibilities[3]-1)
+                        attack(-possibilities[3]-1, False)
 
                 elif pressed.get(pygame.K_RETURN):
                     joueur.enterMode = False
@@ -351,7 +439,12 @@ def main():
                     pygame.time.wait(200)
 
             else:
-                if pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_UP):
+                if pressed.get(pygame.K_SPACE):
+                    if joueur.typeSoldat == "soldat":
+                        joueur.typeSoldat = "canon"
+                    else:
+                        joueur.typeSoldat = "soldat"
+                elif pressed.get(pygame.K_RIGHT) and pressed.get(pygame.K_UP):
                     if joueur.x != rows-1 and joueur.y != 0:
                         joueur.move_up()
                         joueur.move_right()
@@ -398,16 +491,31 @@ def main():
                 elif pressed.get(pygame.K_RETURN):
                     if joueur.insertMode is True:
                         if isSomeone((joueur.x, joueur.y)) == "rien":
-                            soldats.append(Soldat(joueur.equipe))
-                            soldats[len(soldats)-1].rect.x = joueur.x
-                            soldats[len(soldats)-1].rect.y = joueur.y
-                            if joueur.equipe == 1:
-                                soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
-                            else:
-                                soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
-                            joueur.money -= soldats[len(soldats)-1].cost
-                            joueur = changeTeam(joueur, joueur1, joueur2)
-                            pygame.time.wait(200)
+                            if joueur.typeSoldat == "soldat":
+                                soldats.append(Soldat(joueur.equipe))
+                                soldats[len(soldats)-1].rect.x = joueur.x
+                                soldats[len(soldats)-1].rect.y = joueur.y
+                                if joueur.equipe == 1:
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
+                                else:
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
+                            elif joueur.money>=700:
+                                soldats.append(Canon(joueur.equipe, 3))
+                                soldats[len(soldats)-1].rect.x = joueur.x
+                                soldats[len(soldats)-1].rect.y = joueur.y
+                                if joueur.equipe == 1:
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
+                                else:
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
+                            if joueur.typeSoldat == "soldat" or joueur.money>=700:
+                                joueur.money -= soldats[len(soldats)-1].cost
+                                if joueur == joueur1:
+                                    if (joueur1.money>=200 and joueur2.money<200) is False:
+                                        joueur = changeTeam(joueur, joueur1, joueur2)
+                                elif joueur == joueur2:
+                                    if (joueur2.money>=200 and joueur1.money<200) is False:
+                                        joueur = changeTeam(joueur, joueur1, joueur2)
+                                pygame.time.wait(200)
                         else:
                             print("Vous devez placer vos soldats sur des cases vides")
 
