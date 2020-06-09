@@ -6,7 +6,7 @@ class Joueur():
     def __init__(self, equipe):
         self.typeSoldat = "soldat"
         self.insertMode = True
-        self.money = 1000
+        self.money = 1500
         self.x = 0
         self.y = 0
         self.enterMode = False
@@ -70,9 +70,11 @@ class Soldat(pygame.sprite.Sprite):
 
     def attaque(self, soldat):
         if soldat is not None:
-
             soldat.health -= self.attack
-            self.health -= soldat.attack
+            if soldat.cost == 700:
+                self.health -= int(soldat.attack/3)
+            else:
+                self.health -= soldat.attack
             if random.randrange(100) <= self.criticalProb:
                 soldat.health -= self.criticalAttack
             if random.randrange(100) <= soldat.criticalProb:
@@ -85,16 +87,16 @@ class Canon(Soldat):
     def __init__(self, equipe, range):
         super().__init__
         self.cost = 700
-        self.health = 100
+        self.health = 150
         self.max_health = 100
         self.attack = 80
         self.range = range
         self.criticalAttack = 20
         self.criticalProb = 20
         if equipe == 1:
-            self.image = pygame.image.load('soldat.png')
+            self.image = pygame.image.load('canon.png')
         if equipe == 2:
-            self.image = pygame.image.load('soldat2.png')
+            self.image = pygame.image.load('canon.png')
         self.rect = self.image.get_rect()
         self.equipe = equipe
 
@@ -159,7 +161,7 @@ def attack(indexEnemi, isCanon):
                     joueur.x = soldats[indexEnemi].rect.x
                     joueur.y = soldats[indexEnemi].rect.y
                 del soldats[indexEnemi]
-        if is Canon == True:
+        if isCanon == True:
             joueur.nbCoups -= 3
         joueur.nbCoups -= 3
     else:
@@ -183,10 +185,14 @@ def redrawWindow(surface):
     blit_alpha(surface, background, (0, 0), 128)
     drawGrid(width, height, lines, rows, surface)
     for i in range(len(soldats)):
-        if soldats[i].equipe == 1:
-            surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y+0.1)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
+        if soldats[i].cost == 700:
+            surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, soldats[i].rect.y*sizeBtwnY, sizeBtwnX+30, sizeBtwnY))
+            print(sizeBtwnX)
         else:
-            surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
+            if soldats[i].equipe == 1:
+                surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y+0.1)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
+            else:
+                surface.blit(soldats[i].image, ((soldats[i].rect.x)*sizeBtwnX, (soldats[i].rect.y)*sizeBtwnY, sizeBtwnY, sizeBtwnX))
         soldats[i].display_health(sizeBtwnX, sizeBtwnY, surface)
     if joueur.insertMode is True:
         pygame.draw.ellipse(surface, (0, 255, 0), (joueur.x*sizeBtwnX, joueur.y*sizeBtwnY, sizeBtwnX, sizeBtwnY), 2)
@@ -504,9 +510,9 @@ def main():
                                 soldats[len(soldats)-1].rect.x = joueur.x
                                 soldats[len(soldats)-1].rect.y = joueur.y
                                 if joueur.equipe == 1:
-                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.35), int(height/lines/1.25)))
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.1), int(height/lines/1.20)))
                                 else:
-                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.25), int(height/lines)))
+                                    soldats[len(soldats)-1].image = pygame.transform.scale(soldats[len(soldats)-1].image, (int(width/rows/1.1), int(height/lines/1.20)))
                             if joueur.typeSoldat == "soldat" or joueur.money>=700:
                                 joueur.money -= soldats[len(soldats)-1].cost
                                 if joueur == joueur1:
