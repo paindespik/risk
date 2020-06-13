@@ -6,7 +6,7 @@ class Joueur():
     def __init__(self, equipe):
         self.typeSoldat = "soldat"
         self.insertMode = True
-        self.money = 1500
+        self.money = 1600
         self.x = 0
         self.y = 0
         self.enterMode = False
